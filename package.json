@@ -1,0 +1,37 @@
+{
+  "name": "meye",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "APP_ENV=develop nodemon index.js",
+    "test": "APP_ENV=develop DISABLE_ACCESS_LOGS=true node node_modules/.bin/mocha 'tests/**/*Test.js' --exit",
+    "start": "APP_ENV=production nodemon index.js",
+    "migrate-dev": "APP_ENV=develop knex migrate:latest",
+    "migrate-prod": "APP_ENV=production knex migrate:latest"
+  },
+  "author": "Daniel Tamayo",
+  "license": "ISC",
+  "dependencies": {
+    "ajv": "^6.12.3",
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "crypto-random-string": "^3.2.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "knex": "^0.21.2",
+    "log4js": "^6.3.0",
+    "pg": "^8.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "eslint": "^7.6.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "mocha": "^8.1.1",
+    "nodemon": "^2.0.4",
+    "sinon": "^9.0.2"
+  }
+}
