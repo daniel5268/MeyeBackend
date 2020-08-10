@@ -16,7 +16,5 @@ log4js.configure({
 module.exports = (req, res, next) => {
   req.logger = log4js.getLogger(CryptoRandomString({ length: 10, type: 'numeric', level: LOGGER_LEVEL }));
 
-  console.info(JSON.stringify(req.logger));
-
   return next();
 };

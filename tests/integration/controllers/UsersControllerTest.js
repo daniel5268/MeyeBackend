@@ -10,18 +10,24 @@ chai.use(chaiHttp);
 
 const DataBaseUtils = require('../../utils/DataBaseTestUtils');
 const UsersTestData = require('../../data/UsersTestData');
+const JwtService = require('../../../src/services/JwtService');
+const EncryptionService = require('../../../src/services/EncryptionService');
+const { USERS } = require('../../../src/repositories/TableNames');
+const { [USERS]: UsersRepository } = require('../../../src/repositories/GenericRepository');
 
 const { APP_NAME } = process.env;
 
 const BASE_API_PATH = `/api/${APP_NAME}`;
+const BASE_API_USERS_PATH = `${BASE_API_PATH}/users`;
+const ADMIN_TOKEN = `bearer ${JwtService.sign({ ...UsersTestData.userVerifiedToken, is_admin: true })}`;
 
-describe('Users controller test', () => {
+describe('Users controller', () => {
   beforeEach(async () => {
     await DataBaseUtils.cleanDataBase();
     await DataBaseUtils.insertInitialTestData();
   });
 
-  describe('Sign in test', () => {
+  describe('Sign in', () => {
     it('Should throw an error if the user does NOT exists', async () => {
       const { status, body: { error: { message } } } = await chai.request(server)
         .post(`${BASE_API_PATH}/sign-in`)
@@ -42,13 +48,46 @@ describe('Users controller test', () => {
       assert.equal(message, 'Unauthorized');
     });
 
-    it('Should work correctly', async () => {
+    it('Should sign in', async () => {
       const { status, body: { token } } = await chai.request(server)
         .post(`${BASE_API_PATH}/sign-in`)
         .send(UsersTestData.signInInfo);
 
       assert.equal(status, 200);
       assert(!!token);
+    });
+  });
+
+  describe('Create user', () => {
+    it('Should throw an error if username already exists', async () => {
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .post(BASE_API_USERS_PATH)
+        .set('authorization', ADMIN_TOKEN)
+        .send(UsersTestData.alreadyCreatedUserRequest);
+
+      const { username } = UsersTestData.alreadyCreatedUserRequest;
+
+      assert.equal(status, 400);
+      assert.equal(message, `User with username: ${username} already exists`);
+    });
+
+    it('Should create an user', async () => {
+      const { status, body: { id: createdUserId } } = await chai.request(server)
+        .post(BASE_API_USERS_PATH)
+        .set('authorization', ADMIN_TOKEN)
+        .send(UsersTestData.createUserRequest);
+
+      const { secret: providedSecret } = UsersTestData.createUserRequest;
+
+      const foundUser = await UsersRepository.findOne({ id: createdUserId });
+      const cleanedFoundUser = DataBaseUtils.cleanRecord(foundUser);
+      const { secret: hashedSecret, ...cleanedFoundUserWithoutSecret } = cleanedFoundUser;
+
+      const isSecretValid = await EncryptionService.compare(providedSecret, hashedSecret);
+
+      assert.equal(status, 200);
+      assert.deepEqual(cleanedFoundUserWithoutSecret, UsersTestData.expectedCreatedUser);
+      assert(isSecretValid);
     });
   });
 });
