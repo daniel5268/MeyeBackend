@@ -14,7 +14,9 @@ DataBaseTestUtils.cleanDataBase = () => db(USERS).truncate();
 DataBaseTestUtils.insertInitialTestData = async () => {
   const userToInsert = { ...UsersTestData.user, secret: await EncryptionService.hash(UsersTestData.user.secret) };
 
-  await db(USERS).insert(userToInsert).returning('*').then(([inserted]) => inserted);
+  const { id: userId } = await db(USERS).insert(userToInsert).returning('*').then(([inserted]) => inserted);
+
+  return { user_id: userId };
 };
 
 DataBaseTestUtils.cleanRecord = (record, removeId = true) => {

@@ -3,7 +3,7 @@ const DataBaseUpdateTrigger = require('../src/utils/DataBaseUpdateTrigger');
 
 exports.up = (knex) => knex.schema.createTable(USERS, (table) => {
   table.increments('id');
-  table.string('username').notNullable();
+  table.string('username').notNullable().unique();
   table.string('secret').notNullable();
   table.boolean('is_admin').notNullable().defaultTo(false);
   table.boolean('is_master').notNullable().defaultTo(false);

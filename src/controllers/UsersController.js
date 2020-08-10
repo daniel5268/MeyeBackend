@@ -3,6 +3,7 @@ const UsersController = module.exports;
 const SchemaUtils = require('../utils/SchemaUtils');
 const SignInSchema = require('../schemas/users/SignInSchema');
 const CreateUserSchema = require('../schemas/users/CreateUserSchema');
+const UpdateUserSchema = require('../schemas/users/UpdateUserSchema');
 const UsersService = require('../services/UsersService');
 
 UsersController.signIn = (req, res, next) => {
@@ -29,6 +30,22 @@ UsersController.create = (req, res, next) => {
   SchemaUtils.validateSchema(CreateUserSchema, body, options);
 
   return UsersService.create(body, options)
-    .then((createdUser) => res.send(createdUser))
+    .then((createdUser) => res.status(201).send(createdUser))
+    .catch((error) => next(error));
+};
+
+UsersController.update = (req, res, next) => {
+  const section = 'UsersController.update';
+  const {
+    logger = console, body: { secret, ...cleanedBody } = {}, body, params: { userId },
+  } = req;
+  logger.info(section, `starts with ${JSON.stringify(cleanedBody)}`);
+
+  const options = { logger };
+
+  SchemaUtils.validateSchema(UpdateUserSchema, body, options);
+
+  return UsersService.update(userId, body, options)
+    .then((updatedUser) => res.send(updatedUser))
     .catch((error) => next(error));
 };

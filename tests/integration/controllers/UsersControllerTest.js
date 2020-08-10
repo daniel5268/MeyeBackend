@@ -22,9 +22,11 @@ const BASE_API_USERS_PATH = `${BASE_API_PATH}/users`;
 const ADMIN_TOKEN = `bearer ${JwtService.sign({ ...UsersTestData.userVerifiedToken, is_admin: true })}`;
 
 describe('Users controller', () => {
+  let userId;
+
   beforeEach(async () => {
     await DataBaseUtils.cleanDataBase();
-    await DataBaseUtils.insertInitialTestData();
+    ({ user_id: userId } = await DataBaseUtils.insertInitialTestData());
   });
 
   describe('Sign in', () => {
@@ -85,8 +87,50 @@ describe('Users controller', () => {
 
       const isSecretValid = await EncryptionService.compare(providedSecret, hashedSecret);
 
-      assert.equal(status, 200);
+      assert.equal(status, 201);
       assert.deepEqual(cleanedFoundUserWithoutSecret, UsersTestData.expectedCreatedUser);
+      assert(isSecretValid);
+    });
+  });
+
+  describe('Update user', () => {
+    it('Should throw an error if the user does NOT exists', async () => {
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .put(`${BASE_API_USERS_PATH}/123`)
+        .set('authorization', ADMIN_TOKEN)
+        .send(UsersTestData.updateUserRequest);
+
+      assert.equal(status, 404);
+      assert.equal(message, 'User with id: 123 not found');
+    });
+
+    it('Should throw an error if the username is already taken', async () => {
+      const { username } = await UsersRepository.insertOne(UsersTestData.updateUserRequest);
+
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .put(`${BASE_API_USERS_PATH}/${userId}`)
+        .set('authorization', ADMIN_TOKEN)
+        .send(UsersTestData.updateUserRequest);
+
+      assert.equal(status, 400);
+      assert.equal(message, `Username ${username} already taken`);
+    });
+
+    it('Should update an user', async () => {
+      const { status } = await chai.request(server)
+        .put(`${BASE_API_USERS_PATH}/${userId}`)
+        .set('authorization', ADMIN_TOKEN)
+        .send(UsersTestData.updateUserRequest);
+
+      const foundUser = await UsersRepository.findOne({ id: userId });
+      const cleanedFoundUser = DataBaseUtils.cleanRecord(foundUser);
+      const { secret: hashedSecret, ...cleanedFoundUserWithoutSecret } = cleanedFoundUser;
+      const { secret: providedSecret } = UsersTestData.updateUserRequest;
+
+      const isSecretValid = await EncryptionService.compare(providedSecret, hashedSecret);
+
+      assert.equal(status, 200);
+      assert.deepEqual(cleanedFoundUserWithoutSecret, UsersTestData.expectedUpdatedUser);
       assert(isSecretValid);
     });
   });
