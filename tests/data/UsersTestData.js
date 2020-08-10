@@ -59,3 +59,41 @@ UsersTestData.expectedUpdatedUser = {
 };
 
 delete UsersTestData.expectedUpdatedUser.secret;
+
+UsersTestData.users = [
+  { username: 'test_user_1', secret: 'secret', is_admin: true },
+  { username: 'test_user_2', secret: 'secret', is_master: true },
+  { username: 'test_user_3', secret: 'secret', is_admin: true },
+  { username: 'test_user_4', secret: 'secret', is_master: true },
+  { username: 'test_user_5', secret: 'secret', is_player: true },
+  { username: 'test_user_6', secret: 'secret', is_master: true },
+];
+
+UsersTestData.expectedDataWithoutQueryParams = UsersTestData.users.map(({ secret: _, ...user }) => ({
+  is_admin: false, is_master: false, is_player: false, is_pnj: false, ...user,
+}));
+
+UsersTestData.expectedUsersResponseWithoutQueryParams = {
+  data: UsersTestData.expectedDataWithoutQueryParams,
+  page: 1,
+  size: 20,
+  last_page: 1,
+  total: 6,
+};
+
+UsersTestData.getUsersQuery = {
+  is_master: true,
+  size: 2,
+  page: 2,
+
+};
+
+UsersTestData.expectedUsersResponseWithQueryParams = {
+  data: [{
+    username: 'test_user_6', is_master: true, is_pnj: false, is_player: false, is_admin: false,
+  }],
+  page: 2,
+  size: 2,
+  last_page: 2,
+  total: 3,
+};

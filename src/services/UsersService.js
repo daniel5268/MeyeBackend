@@ -50,6 +50,27 @@ UsersService.create = async (userInfo, options = {}) => {
   return UsersRepository.insertOne({ ...userInfo, secret: hashedSecret });
 };
 
+UsersService.getAll = async (query, options = {}) => {
+  const section = 'UsersService.getAll';
+  const { logger = console } = options;
+  logger.info(section, `starts with ${JSON.stringify({ query })}`);
+
+  const { page = 1, size = 20, ...filters } = query;
+
+  const users = await UsersRepository.list(+page, +size, filters);
+  const pageContent = users.map(({ secret, ...cleanedUser }) => cleanedUser);
+
+  const [{ count: countValue }] = await UsersRepository.count(filters);
+
+  return {
+    data: pageContent,
+    page,
+    size,
+    last_page: Math.ceil(countValue / size),
+    total: +countValue,
+  };
+};
+
 UsersService.update = async (userId, userInfo, options = {}) => {
   const section = 'UsersService.update';
   const { logger = console } = options;
