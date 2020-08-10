@@ -4,6 +4,7 @@ const SchemaUtils = require('../utils/SchemaUtils');
 const SignInSchema = require('../schemas/users/SignInSchema');
 const CreateUserSchema = require('../schemas/users/CreateUserSchema');
 const UpdateUserSchema = require('../schemas/users/UpdateUserSchema');
+const GetUsersQuerySchema = require('../schemas/users/GetUsersQuerySchema');
 const UsersService = require('../services/UsersService');
 const ErrorUtils = require('../utils/ErrorUtils');
 
@@ -36,6 +37,24 @@ UsersController.create = (req, res, next) => {
 
   return UsersService.create(body, options)
     .then((createdUser) => res.status(201).send(createdUser))
+    .catch((error) => {
+      logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
+
+      return next(error);
+    });
+};
+
+UsersController.getAll = (req, res, next) => {
+  const section = 'UsersController.getAll';
+  const { logger = console, query } = req;
+  logger.info(section, `starts with ${JSON.stringify({ query })}`);
+
+  const options = { logger };
+
+  SchemaUtils.validateSchema(GetUsersQuerySchema, query, options);
+
+  return UsersService.getAll(query, options)
+    .then((pageInfo) => res.send(pageInfo))
     .catch((error) => {
       logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
 

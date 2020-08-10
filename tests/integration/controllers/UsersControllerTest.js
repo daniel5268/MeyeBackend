@@ -93,6 +93,44 @@ describe('Users controller', () => {
     });
   });
 
+  describe('Get users', () => {
+    beforeEach(async () => {
+      await DataBaseUtils.cleanDataBase();
+      await UsersRepository.insert(UsersTestData.users);
+    });
+
+    it('should work correctly without query parameters', async () => {
+      const { status, body } = await chai.request(server)
+        .get(BASE_API_USERS_PATH)
+        .set('authorization', ADMIN_TOKEN);
+
+      const { data: users } = body;
+      const cleanedUsers = DataBaseUtils.cleanRecords(users);
+      const cleanedResponse = { ...body, data: cleanedUsers };
+
+      assert.equal(status, 200);
+      assert.deepEqual(
+        cleanedResponse, UsersTestData.expectedUsersResponseWithoutQueryParams,
+      );
+    });
+
+    it('should work correctly with query parameters', async () => {
+      const { status, body } = await chai.request(server)
+        .get(BASE_API_USERS_PATH)
+        .query(UsersTestData.getUsersQuery)
+        .set('authorization', ADMIN_TOKEN);
+
+      const { data: users } = body;
+      const cleanedUsers = DataBaseUtils.cleanRecords(users);
+      const cleanedResponse = { ...body, data: cleanedUsers };
+
+      assert.equal(status, 200);
+      assert.deepEqual(
+        cleanedResponse, UsersTestData.expectedUsersResponseWithQueryParams,
+      );
+    });
+  });
+
   describe('Update user', () => {
     it('Should throw an error if the user does NOT exists', async () => {
       const { status, body: { error: { message } } } = await chai.request(server)
