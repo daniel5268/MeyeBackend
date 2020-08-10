@@ -5,11 +5,12 @@ const SignInSchema = require('../schemas/users/SignInSchema');
 const CreateUserSchema = require('../schemas/users/CreateUserSchema');
 const UpdateUserSchema = require('../schemas/users/UpdateUserSchema');
 const UsersService = require('../services/UsersService');
+const ErrorUtils = require('../utils/ErrorUtils');
 
 UsersController.signIn = (req, res, next) => {
   const section = 'UsersController.signIn';
   const { logger = console, body } = req;
-  logger.info(section, `starts for body ${JSON.stringify(body)}`);
+  logger.info(section, 'starts');
 
   const options = { logger };
 
@@ -17,7 +18,11 @@ UsersController.signIn = (req, res, next) => {
 
   return UsersService.signIn(body, options)
     .then((signInInfo) => res.send(signInInfo))
-    .catch((error) => next(error));
+    .catch((error) => {
+      logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
+
+      return next(error);
+    });
 };
 
 UsersController.create = (req, res, next) => {
@@ -31,7 +36,11 @@ UsersController.create = (req, res, next) => {
 
   return UsersService.create(body, options)
     .then((createdUser) => res.status(201).send(createdUser))
-    .catch((error) => next(error));
+    .catch((error) => {
+      logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
+
+      return next(error);
+    });
 };
 
 UsersController.update = (req, res, next) => {
@@ -47,5 +56,25 @@ UsersController.update = (req, res, next) => {
 
   return UsersService.update(userId, body, options)
     .then((updatedUser) => res.send(updatedUser))
-    .catch((error) => next(error));
+    .catch((error) => {
+      logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
+
+      return next(error);
+    });
+};
+
+UsersController.delete = (req, res, next) => {
+  const section = 'UsersController.delete';
+  const { logger = console, params: { userId } } = req;
+  logger.info(section, `starts for user with id ${userId}`);
+
+  const options = { logger };
+
+  return UsersService.delete(userId, options)
+    .then(() => res.sendStatus(204))
+    .catch((error) => {
+      logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
+
+      return next(error);
+    });
 };
