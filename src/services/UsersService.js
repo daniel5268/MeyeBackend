@@ -2,8 +2,7 @@ const UsersService = module.exports;
 
 const EncryptionService = require('./EncryptionService');
 const JwtService = require('./JwtService');
-const { USERS } = require('../repositories/TableNames');
-const { [USERS]: UsersRepository } = require('../repositories/GenericRepository');
+const UsersRepository = require('../repositories/UsersRepository');
 const { GetFormattedError } = require('../utils/ErrorUtils');
 
 function mapTokenUser(user) {
@@ -47,4 +46,26 @@ UsersService.create = async (userInfo, options = {}) => {
   const hashedSecret = await EncryptionService.hash(secret);
 
   return UsersRepository.insertOne({ ...userInfo, secret: hashedSecret });
+};
+
+UsersService.update = async (userId, userInfo, options = {}) => {
+  const section = 'UsersService.update';
+  const { logger = console } = options;
+  logger.debug(section, 'starts');
+
+  const user = await UsersRepository.findOne({ id: userId });
+
+  if (!user) throw new GetFormattedError(`User with id: ${userId} not found`, 404, 404);
+
+  const { secret: providedSecret, username } = userInfo;
+
+  const existingUsername = await UsersRepository.findByUsernameWithDistinctId(username, userId);
+
+  if (existingUsername) throw new GetFormattedError(`Username ${username} already taken`, 400, 400);
+
+  const { secret: previousHashedSecret } = user;
+
+  const hashedSecret = providedSecret ? await EncryptionService.hash(providedSecret) : previousHashedSecret;
+
+  return UsersRepository.updateOne({ ...userInfo, secret: hashedSecret }, { id: userId });
 };
