@@ -16,7 +16,7 @@ function mapTokenUser(user) {
 UsersService.signIn = async (signInInfo, options = {}) => {
   const section = 'UsersService.signIn';
   const { logger = console } = options;
-  logger.debug(section, 'starts');
+  logger.info(section, 'starts');
 
   const { username, secret: providedSecret } = signInInfo;
   const user = await UsersRepository.findOne({ username });
@@ -36,9 +36,11 @@ UsersService.signIn = async (signInInfo, options = {}) => {
 UsersService.create = async (userInfo, options = {}) => {
   const section = 'UsersService.create';
   const { logger = console } = options;
-  logger.debug(section, 'starts');
+  const { secret, ...cleanedUserInfo } = userInfo;
 
-  const { username, secret } = userInfo;
+  logger.info(section, `starts with ${JSON.stringify(cleanedUserInfo)}`);
+
+  const { username } = userInfo;
   const user = await UsersRepository.findOne({ username });
 
   if (user) throw new GetFormattedError(`User with username: ${username} already exists`, 400, 400);
@@ -51,13 +53,15 @@ UsersService.create = async (userInfo, options = {}) => {
 UsersService.update = async (userId, userInfo, options = {}) => {
   const section = 'UsersService.update';
   const { logger = console } = options;
-  logger.debug(section, 'starts');
+  const { secret: providedSecret, ...cleanedUserInfo } = userInfo;
+
+  logger.info(section, `starts for user with id ${userId} with ${JSON.stringify(cleanedUserInfo)}`);
 
   const user = await UsersRepository.findOne({ id: userId });
 
   if (!user) throw new GetFormattedError(`User with id: ${userId} not found`, 404, 404);
 
-  const { secret: providedSecret, username } = userInfo;
+  const { username } = userInfo;
 
   const existingUsername = await UsersRepository.findByUsernameWithDistinctId(username, userId);
 
@@ -68,4 +72,16 @@ UsersService.update = async (userId, userInfo, options = {}) => {
   const hashedSecret = providedSecret ? await EncryptionService.hash(providedSecret) : previousHashedSecret;
 
   return UsersRepository.updateOne({ ...userInfo, secret: hashedSecret }, { id: userId });
+};
+
+UsersService.delete = async (userId, options = {}) => {
+  const section = 'UsersService.delete';
+  const { logger = console } = options;
+  logger.info(section, `starts for user with id ${userId}`);
+
+  const user = await UsersRepository.findOne({ id: userId });
+
+  if (!user) throw new GetFormattedError(`User with id: ${userId} not found`, 404, 404);
+
+  return UsersRepository.delete({ id: userId });
 };
