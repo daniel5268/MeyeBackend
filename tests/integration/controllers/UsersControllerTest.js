@@ -134,4 +134,26 @@ describe('Users controller', () => {
       assert(isSecretValid);
     });
   });
+
+  describe('Delete user', () => {
+    it('Should throw an error if the user does NOT exists', async () => {
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .delete(`${BASE_API_USERS_PATH}/123`)
+        .set('authorization', ADMIN_TOKEN);
+
+      assert.equal(status, 404);
+      assert.equal(message, 'User with id: 123 not found');
+    });
+
+    it('Should delete an user', async () => {
+      const { status } = await chai.request(server)
+        .delete(`${BASE_API_USERS_PATH}/${userId}`)
+        .set('authorization', ADMIN_TOKEN);
+
+      const foundUser = await UsersRepository.findOne({ id: userId });
+
+      assert.equal(status, 204);
+      assert(!foundUser);
+    });
+  });
 });

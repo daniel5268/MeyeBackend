@@ -5,7 +5,7 @@ const { TOKEN_ISSUER, TOKEN_EXPIRATION_TIME, PRIVATE_KEY } = process.env;
 const JwtService = module.exports;
 
 JwtService.sign = (payload, options = {}) => {
-  const section = 'jwt.sign';
+  const section = 'JwtService.sign';
   const { logger = console } = options;
   logger.debug(section, `starts with ${JSON.stringify({ payload })}`);
 
@@ -18,7 +18,7 @@ JwtService.sign = (payload, options = {}) => {
 };
 
 JwtService.verify = (token, options = {}) => {
-  const section = 'jwt.verify';
+  const section = 'JwtService.verify';
   const { logger = console } = options;
   logger.debug(section, `starts with token ${token}`);
 
