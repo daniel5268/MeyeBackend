@@ -13,4 +13,16 @@ UsersRepository.findByUsernameWithDistinctId = (username, id) => db(USERS)
   .andWhereNot({ id })
   .first();
 
+UsersRepository.list = (page = 1, size = 20, filters) => {
+  const offset = (page - 1) * size;
+
+  return db(USERS)
+    .where(filters)
+    .offset(offset)
+    .limit(size)
+    .orderBy('id', 'asc');
+};
+
+UsersRepository.count = (filters) => db(USERS).where(filters).count();
+
 module.exports = UsersRepository;

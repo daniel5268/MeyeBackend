@@ -28,3 +28,6 @@ DataBaseTestUtils.cleanRecord = (record, removeId = true) => {
 
   return cleanedRecord;
 };
+
+DataBaseTestUtils.cleanRecords = (records, removeId = true) => records
+  .map((record) => DataBaseTestUtils.cleanRecord(record, removeId));
