@@ -63,6 +63,6 @@ describe('Auth admin middleware', () => {
       .set('authorization', ADMIN_TOKEN)
       .send(UsersTestData.createUserRequest);
 
-    assert.equal(status, 200);
+    assert.equal(status, 201);
   });
 });

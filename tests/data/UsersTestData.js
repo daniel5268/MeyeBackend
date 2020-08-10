@@ -45,3 +45,17 @@ UsersTestData.expectedCreatedUser = {
   is_master: UsersTestData.createUserRequest.is_master || false,
   is_pnj: UsersTestData.createUserRequest.is_pnj || false,
 };
+
+UsersTestData.updateUserRequest = {
+  username: 'testUsername',
+  secret: 'updatedSecret',
+  is_admin: true,
+  is_master: true,
+};
+
+UsersTestData.expectedUpdatedUser = {
+  ...UsersTestData.userVerifiedToken,
+  ...UsersTestData.updateUserRequest,
+};
+
+delete UsersTestData.expectedUpdatedUser.secret;
