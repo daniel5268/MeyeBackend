@@ -16,3 +16,13 @@ DataBaseTestUtils.insertInitialTestData = async () => {
 
   await db(USERS).insert(userToInsert).returning('*').then(([inserted]) => inserted);
 };
+
+DataBaseTestUtils.cleanRecord = (record, removeId = true) => {
+  const { created_at: createdAt, updated_at: updatedAt, ...cleanedRecord } = record;
+
+  if (removeId) {
+    delete cleanedRecord.id;
+  }
+
+  return cleanedRecord;
+};

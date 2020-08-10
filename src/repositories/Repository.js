@@ -9,9 +9,9 @@ module.exports = function createRepository(db, tableNames) {
 
   if (Object.entries(Repository).length) return Repository;
 
-  Repository.findAll = (table, query = {}) => db(table).where(query);
+  Repository.find = (table, query = {}) => db(table).where(query);
 
-  Repository.find = (table, query = {}) => db(table).where(query).first();
+  Repository.findOne = (table, query = {}) => db(table).where(query).first();
 
   Repository.insert = (table, data) => db(table).insert(data).returning('*');
 
@@ -27,8 +27,8 @@ module.exports = function createRepository(db, tableNames) {
   Object.keys(tableNames).forEach((tableKey) => {
     const tableName = tableNames[tableKey];
     Repository[tableName] = {
-      find: (query) => Repository.findAll(tableName, query),
-      findOne: (query) => Repository.find(tableName, query),
+      find: (query) => Repository.find(tableName, query),
+      findOne: (query) => Repository.findOne(tableName, query),
       insert: (data) => Repository.insert(tableName, data),
       insertOne: (data) => Repository.insertOne(tableName, data),
       update: (data, query) => Repository.update(tableName, data, query),

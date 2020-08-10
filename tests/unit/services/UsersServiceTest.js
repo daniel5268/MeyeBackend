@@ -7,20 +7,21 @@ const JwtService = require('../../../src/services/JwtService');
 const DataBaseUtils = require('../../utils/DataBaseTestUtils');
 const UsersTestData = require('../../data/UsersTestData');
 
-describe('Users service test', () => {
+describe('Users service', () => {
   beforeEach(async () => {
     await DataBaseUtils.cleanDataBase();
     await DataBaseUtils.insertInitialTestData();
   });
 
-  describe('Sign in service test', () => {
+  describe('Sign in service', () => {
     it('Should return a valid token', async () => {
       const { token } = await UsersService.signIn(UsersTestData.signInInfo);
-      const { username: expectedUsername } = UsersTestData.signInInfo;
+      const verifiedToken = JwtService.verify(token);
+      const {
+        exp, iat, id, iss, ...cleanedToken
+      } = verifiedToken;
 
-      const { username: retrievedUsername } = JwtService.verify(token);
-
-      assert.equal(retrievedUsername, expectedUsername);
+      assert.deepEqual(cleanedToken, UsersTestData.expectedVerifiedToken);
     });
   });
 });
