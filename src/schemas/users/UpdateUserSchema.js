@@ -7,7 +7,6 @@ module.exports = {
     is_admin: { type: 'boolean' },
     is_master: { type: 'boolean' },
     is_player: { type: 'boolean' },
-    is_pnj: { type: 'boolean' },
   },
   additionalProperties: false,
 };

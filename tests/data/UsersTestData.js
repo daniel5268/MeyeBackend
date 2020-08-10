@@ -6,7 +6,6 @@ UsersTestData.user = {
   is_admin: false,
   is_player: true,
   is_master: true,
-  is_pnj: false,
 };
 
 const { secret, ...userVerifiedToken } = UsersTestData.user;
@@ -43,11 +42,10 @@ UsersTestData.expectedCreatedUser = {
   is_admin: UsersTestData.createUserRequest.is_admin || false,
   is_player: UsersTestData.createUserRequest.is_player || false,
   is_master: UsersTestData.createUserRequest.is_master || false,
-  is_pnj: UsersTestData.createUserRequest.is_pnj || false,
 };
 
 UsersTestData.updateUserRequest = {
-  username: 'testUsername',
+  username: 'testUsernameUpdated',
   secret: 'updatedSecret',
   is_admin: true,
   is_master: true,
@@ -70,7 +68,7 @@ UsersTestData.users = [
 ];
 
 UsersTestData.expectedDataWithoutQueryParams = UsersTestData.users.map(({ secret: _, ...user }) => ({
-  is_admin: false, is_master: false, is_player: false, is_pnj: false, ...user,
+  is_admin: false, is_master: false, is_player: false, ...user,
 }));
 
 UsersTestData.expectedUsersResponseWithoutQueryParams = {
@@ -90,7 +88,7 @@ UsersTestData.getUsersQuery = {
 
 UsersTestData.expectedUsersResponseWithQueryParams = {
   data: [{
-    username: 'test_user_6', is_master: true, is_pnj: false, is_player: false, is_admin: false,
+    username: 'test_user_6', is_master: true, is_player: false, is_admin: false,
   }],
   page: 2,
   size: 2,
