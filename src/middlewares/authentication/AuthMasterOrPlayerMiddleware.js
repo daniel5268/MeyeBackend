@@ -2,8 +2,8 @@ const { GetFormattedError } = require('../../utils/ErrorUtils');
 const JwtService = require('../../services/JwtService');
 
 module.exports = (req, res, next) => {
-  const section = 'AuthAdminMiddleware';
-  const { logger = console, headers: { authorization } } = req;
+  const section = 'AuthMasterOrPlayerMiddleware';
+  const { logger = console, headers: { authorization }, params: { userId } } = req;
   logger.debug(section, 'starts');
 
   const options = { logger };
@@ -14,9 +14,11 @@ module.exports = (req, res, next) => {
 
   try {
     const userVerifiedToken = JwtService.verify(token, options);
-    const { is_admin: isAdmin } = userVerifiedToken;
+    const { is_player: isPlayer, is_master: isMaster, id: clientUserId } = userVerifiedToken;
 
-    if (!isAdmin) throw new GetFormattedError('Forbidden', 403, 403);
+    if (!(isPlayer || isMaster) || (!isMaster && userId && (+userId !== clientUserId))) {
+      throw new GetFormattedError('Forbidden', 403, 403);
+    }
 
     const { headers } = req;
     const newHeaders = { ...headers, ...userVerifiedToken };

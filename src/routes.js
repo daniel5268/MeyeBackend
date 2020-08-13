@@ -4,10 +4,9 @@ const router = express.Router();
 
 const UsersRouter = require('./routers/UsersRouter');
 const UsersController = require('./controllers/UsersController');
-const AuthAdminMiddleware = require('./middlewares/authentication/AuthAdminMiddleware');
 
 router.post('/sign-in', UsersController.signIn);
 
-router.use('/users', AuthAdminMiddleware, UsersRouter);
+router.use('/users', UsersRouter);
 
 module.exports = router;

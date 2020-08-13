@@ -8,7 +8,8 @@
     "test": "APP_ENV=develop DISABLE_ACCESS_LOGS=true node node_modules/.bin/mocha 'tests/**/*Test.js' --exit",
     "start": "APP_ENV=production nodemon index.js",
     "migrate-dev": "APP_ENV=develop knex migrate:latest",
-    "migrate-prod": "APP_ENV=production knex migrate:latest"
+    "migrate-prod": "APP_ENV=production knex migrate:latest",
+    "migrate-make": "APP_ENV=develop knex migrate:make"
   },
   "author": "Daniel Tamayo",
   "license": "ISC",
