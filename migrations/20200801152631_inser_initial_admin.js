@@ -8,7 +8,6 @@ const initialAdmin = {
 };
 
 exports.up = async (knex) => {
-  console.error('antes');
   const secret = await EncryptionService.hash('admin');
 
   return knex(USERS).insert({ ...initialAdmin, secret });
