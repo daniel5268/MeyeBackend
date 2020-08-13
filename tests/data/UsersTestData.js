@@ -4,11 +4,11 @@ UsersTestData.user = {
   username: 'testUsername',
   secret: 'testSecret',
   is_admin: false,
-  is_player: true,
-  is_master: true,
+  is_player: false,
+  is_master: false,
 };
 
-const { secret, ...userVerifiedToken } = UsersTestData.user;
+const { secret, ...userVerifiedToken } = { ...UsersTestData.user };
 
 UsersTestData.userVerifiedToken = userVerifiedToken;
 
