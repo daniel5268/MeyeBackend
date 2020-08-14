@@ -69,14 +69,12 @@ PjUtils.getStatGroupSpentXp = (params) => {
 
   const statGroupKeys = Object.keys(statGroup);
 
-  const spentXp = statGroupKeys.reduce((accumulatedXp, statGroupKey) => {
+  return statGroupKeys.reduce((accumulatedXp, statGroupKey) => {
     const handicap = statGroupKey === talent ? 0 : statGroupHandicap;
 
     return accumulatedXp
       + PjUtils.getSectionSpentXp({ ...params, stat_group_section: statGroup[statGroupKey], handicap });
   }, 0);
-
-  return spentXp;
 };
 
 PjUtils.getPjSpentXp = (pj, options = {}) => {
