@@ -1,9 +1,8 @@
-const { PJS, XP_ASSIGNATIONS, USERS } = require('../src/repositories/TableNames');
+const { PJS, XP_ASSIGNATIONS } = require('../src/repositories/TableNames');
 
 exports.up = (knex) => knex.schema.createTable(XP_ASSIGNATIONS, (table) => {
   table.increments('id');
-  table.integer('user_id').notNullable().references('id').inTable(USERS)
-    .onDelete('CASCADE');
+  table.integer('user_id').notNullable();
   table.integer('pj_id').notNullable().references('id').inTable(PJS)
     .onDelete('CASCADE');
   table.string('type').notNullable();

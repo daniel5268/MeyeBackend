@@ -1,12 +1,12 @@
 const PjsTestData = module.exports;
 
-PjsTestData.createPjRequest = {
+PjsTestData.createPjBody = {
   name: 'testName',
   type: 'human',
 };
 
 PjsTestData.expectedCreatedPJ = {
-  ...PjsTestData.createPjRequest,
+  ...PjsTestData.createPjBody,
   race: null,
   description: null,
   sanity: 0,
@@ -97,13 +97,13 @@ PjsTestData.pjSpentXp = {
   divine: 0,
 };
 
-PjsTestData.updatePjRequestWithoutStats = {
+PjsTestData.updatePjBodyWithoutStats = {
   sanity: 15,
   name: 'testNameUpdated',
 };
 
-PjsTestData.updatePjRequest = {
-  ...PjsTestData.updatePjRequestWithoutStats,
+PjsTestData.updatePjBody = {
+  ...PjsTestData.updatePjBodyWithoutStats,
   stats: {
     basic: {
       physical: {
@@ -129,7 +129,7 @@ PjsTestData.updatePjRequest = {
 
 PjsTestData.expectedUpdatedPj = {
   ...PjsTestData.pj,
-  ...PjsTestData.updatePjRequest,
+  ...PjsTestData.updatePjBody,
 };
 
 PjsTestData.enoughBasicXpAssignations = [
@@ -158,4 +158,72 @@ PjsTestData.insufficientSpecialXpAssignations = [
 
 PjsTestData.pjInvalidState = {
   xp_valid: false, basic_xp_valid: true, special_xp_valid: true, divine_xp_valid: true,
+};
+
+PjsTestData.xpAssignationBody = {
+  type: 'basic',
+  amount: 100,
+};
+
+PjsTestData.expectedCreatedAssignation = {
+  ...PjsTestData.xpAssignationBody,
+};
+
+PjsTestData.assignations = [
+  { type: 'divine', amount: 1 },
+  { type: 'divine', amount: 2 },
+  { type: 'divine', amount: 3 },
+  { type: 'divine', amount: 4 },
+  { type: 'divine', amount: 5 },
+  { type: 'basic', amount: 10 },
+  { type: 'basic', amount: 20 },
+  { type: 'basic', amount: 30 },
+  { type: 'basic', amount: 40 },
+  { type: 'basic', amount: 50 },
+  { type: 'special', amount: 100 },
+  { type: 'special', amount: 200 },
+  { type: 'special', amount: 300 },
+  { type: 'special', amount: 400 },
+  { type: 'special', amount: 500 },
+];
+
+PjsTestData.getAssignations = (pjId, userId) => PjsTestData.assignations
+  .map((assignation) => ({ ...assignation, user_id: userId, pj_id: pjId }));
+
+PjsTestData.assignationsQuery = {
+  type: 'basic',
+  page: 2,
+  size: 3,
+};
+
+PjsTestData.queryAssignations = [
+  { type: 'basic', amount: 40 },
+  { type: 'basic', amount: 50 },
+];
+
+PjsTestData.getQueryAssignations = (pjId, userId) => PjsTestData.queryAssignations
+  .map((assignation) => ({ ...assignation, user_id: userId, pj_id: pjId }));
+
+PjsTestData.expectedAssignationsResponseWithQueryParams = {
+  page: 2,
+  size: 3,
+  last_page: 2,
+  total: 5,
+};
+
+PjsTestData.expectedAssignationsResponseWithoutQueryParams = {
+  page: 1,
+  size: 20,
+  last_page: 1,
+  total: 15,
+};
+
+PjsTestData.getExpectedAssignationsResponse = (pjId, userId, withQueryParams) => {
+  const data = withQueryParams ? PjsTestData.getQueryAssignations(pjId, userId)
+    : PjsTestData.getAssignations(pjId, userId);
+
+  const basicResponse = withQueryParams ? PjsTestData.expectedAssignationsResponseWithQueryParams
+    : PjsTestData.expectedAssignationsResponseWithoutQueryParams;
+
+  return { ...basicResponse, data };
 };

@@ -14,12 +14,12 @@ UsersTestData.userVerifiedToken = userVerifiedToken;
 
 UsersTestData.expectedVerifiedToken = userVerifiedToken;
 
-UsersTestData.wrongCredentialsSignInRequest = {
+UsersTestData.wrongCredentialsSignInBody = {
   username: 'testUsername',
   secret: 'wrongSecret',
 };
 
-UsersTestData.notExistingUserSignInRequest = {
+UsersTestData.notExistingUserSignInBody = {
   username: 'notExistingUser',
   secret: '',
 };
@@ -29,22 +29,22 @@ UsersTestData.signInInfo = {
   secret,
 };
 
-UsersTestData.alreadyCreatedUserRequest = UsersTestData.user;
+UsersTestData.alreadyCreatedUserBody = UsersTestData.user;
 
-UsersTestData.createUserRequest = {
+UsersTestData.createUserBody = {
   username: 'createThisUser',
   secret: 'secret',
   is_player: true,
 };
 
 UsersTestData.expectedCreatedUser = {
-  username: UsersTestData.createUserRequest.username,
-  is_admin: UsersTestData.createUserRequest.is_admin || false,
-  is_player: UsersTestData.createUserRequest.is_player || false,
-  is_master: UsersTestData.createUserRequest.is_master || false,
+  username: UsersTestData.createUserBody.username,
+  is_admin: UsersTestData.createUserBody.is_admin || false,
+  is_player: UsersTestData.createUserBody.is_player || false,
+  is_master: UsersTestData.createUserBody.is_master || false,
 };
 
-UsersTestData.updateUserRequest = {
+UsersTestData.updateUserBody = {
   username: 'testUsernameUpdated',
   secret: 'updatedSecret',
   is_admin: true,
@@ -53,7 +53,7 @@ UsersTestData.updateUserRequest = {
 
 UsersTestData.expectedUpdatedUser = {
   ...UsersTestData.userVerifiedToken,
-  ...UsersTestData.updateUserRequest,
+  ...UsersTestData.updateUserBody,
 };
 
 delete UsersTestData.expectedUpdatedUser.secret;

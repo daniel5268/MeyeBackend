@@ -73,7 +73,7 @@ UsersController.update = (req, res, next) => {
 
   SchemaUtils.validateSchema(UpdateUserSchema, body, options);
 
-  return UsersService.update(userId, body, options)
+  return UsersService.update(+userId, body, options)
     .then((updatedUser) => res.send(updatedUser))
     .catch((error) => {
       logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
@@ -89,7 +89,7 @@ UsersController.delete = (req, res, next) => {
 
   const options = { logger };
 
-  return UsersService.delete(userId, options)
+  return UsersService.delete(+userId, options)
     .then(() => res.sendStatus(204))
     .catch((error) => {
       logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
