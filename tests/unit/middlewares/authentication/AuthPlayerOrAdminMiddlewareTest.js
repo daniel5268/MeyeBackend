@@ -33,7 +33,7 @@ describe('Auth master or player middleware', () => {
   it('Should throw an error if no authorization header is provided', async () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(TEST_PATH)
-      .send(PjsTestData.createPjRequest);
+      .send(PjsTestData.createPjBody);
 
     assert.equal(status, 401);
     assert.equal(message, 'Unauthorized');
@@ -43,7 +43,7 @@ describe('Auth master or player middleware', () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(TEST_PATH)
       .set('authorization', 'someToken')
-      .send(PjsTestData.createPjRequest);
+      .send(PjsTestData.createPjBody);
 
     assert.equal(status, 500);
     assert.equal(message, 'An error ocurred while trying to retrieve token info');
@@ -53,7 +53,7 @@ describe('Auth master or player middleware', () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(TEST_PATH)
       .set('authorization', FORBIDDEN_TOKEN)
-      .send(PjsTestData.createPjRequest);
+      .send(PjsTestData.createPjBody);
 
     assert.equal(status, 403);
     assert.equal(message, 'Forbidden');
@@ -63,7 +63,7 @@ describe('Auth master or player middleware', () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(TEST_PATH)
       .set('authorization', WRONG_PLAYER_TOKEN)
-      .send(PjsTestData.createPjRequest);
+      .send(PjsTestData.createPjBody);
 
     assert.equal(status, 403);
     assert.equal(message, 'Forbidden');
@@ -73,7 +73,7 @@ describe('Auth master or player middleware', () => {
     const { status } = await chai.request(server)
       .post(TEST_PATH)
       .set('authorization', PLAYER_TOKEN)
-      .send(PjsTestData.createPjRequest);
+      .send(PjsTestData.createPjBody);
 
     assert.equal(status, 201);
   });
@@ -82,7 +82,7 @@ describe('Auth master or player middleware', () => {
     const { status } = await chai.request(server)
       .post(TEST_PATH)
       .set('authorization', MASTER_TOKEN)
-      .send(PjsTestData.createPjRequest);
+      .send(PjsTestData.createPjBody);
 
     assert.equal(status, 201);
   });

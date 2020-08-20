@@ -31,7 +31,7 @@ describe('Auth admin middleware', () => {
   it('Should throw an error if no authorization header is provided', async () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(BASE_API_USERS_PATH)
-      .send(UsersTestData.createUserRequest);
+      .send(UsersTestData.createUserBody);
 
     assert.equal(status, 401);
     assert.equal(message, 'Unauthorized');
@@ -41,7 +41,7 @@ describe('Auth admin middleware', () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(BASE_API_USERS_PATH)
       .set('authorization', 'someToken')
-      .send(UsersTestData.createUserRequest);
+      .send(UsersTestData.createUserBody);
 
     assert.equal(status, 500);
     assert.equal(message, 'An error ocurred while trying to retrieve token info');
@@ -51,7 +51,7 @@ describe('Auth admin middleware', () => {
     const { status, body: { error: { message } } } = await chai.request(server)
       .post(BASE_API_USERS_PATH)
       .set('authorization', NOT_ADMIN_TOKEN)
-      .send(UsersTestData.createUserRequest);
+      .send(UsersTestData.createUserBody);
 
     assert.equal(status, 403);
     assert.equal(message, 'Forbidden');
@@ -61,7 +61,7 @@ describe('Auth admin middleware', () => {
     const { status } = await chai.request(server)
       .post(BASE_API_USERS_PATH)
       .set('authorization', ADMIN_TOKEN)
-      .send(UsersTestData.createUserRequest);
+      .send(UsersTestData.createUserBody);
 
     assert.equal(status, 201);
   });

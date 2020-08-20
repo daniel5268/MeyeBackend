@@ -33,9 +33,9 @@ describe('Users controller', () => {
     it('Should throw an error if the user does NOT exists', async () => {
       const { status, body: { error: { message } } } = await chai.request(server)
         .post(`${BASE_API_PATH}/sign-in`)
-        .send(UsersTestData.notExistingUserSignInRequest);
+        .send(UsersTestData.notExistingUserSignInBody);
 
-      const { username } = UsersTestData.notExistingUserSignInRequest;
+      const { username } = UsersTestData.notExistingUserSignInBody;
 
       assert.equal(status, 404);
       assert.equal(message, `User with username: ${username} not found`);
@@ -44,7 +44,7 @@ describe('Users controller', () => {
     it('Should throw an error if invalid credentials are provided', async () => {
       const { status, body: { error: { message } } } = await chai.request(server)
         .post(`${BASE_API_PATH}/sign-in`)
-        .send(UsersTestData.wrongCredentialsSignInRequest);
+        .send(UsersTestData.wrongCredentialsSignInBody);
 
       assert.equal(status, 401);
       assert.equal(message, 'Unauthorized');
@@ -65,9 +65,9 @@ describe('Users controller', () => {
       const { status, body: { error: { message } } } = await chai.request(server)
         .post(BASE_API_USERS_PATH)
         .set('authorization', ADMIN_TOKEN)
-        .send(UsersTestData.alreadyCreatedUserRequest);
+        .send(UsersTestData.alreadyCreatedUserBody);
 
-      const { username } = UsersTestData.alreadyCreatedUserRequest;
+      const { username } = UsersTestData.alreadyCreatedUserBody;
 
       assert.equal(status, 400);
       assert.equal(message, `User with username: ${username} already exists`);
@@ -77,9 +77,9 @@ describe('Users controller', () => {
       const { status, body: { id: createdUserId } } = await chai.request(server)
         .post(BASE_API_USERS_PATH)
         .set('authorization', ADMIN_TOKEN)
-        .send(UsersTestData.createUserRequest);
+        .send(UsersTestData.createUserBody);
 
-      const { secret: providedSecret } = UsersTestData.createUserRequest;
+      const { secret: providedSecret } = UsersTestData.createUserBody;
 
       const foundUser = await UsersRepository.findOne({ id: createdUserId });
       const cleanedFoundUser = DataBaseUtils.cleanRecord(foundUser);
@@ -136,19 +136,19 @@ describe('Users controller', () => {
       const { status, body: { error: { message } } } = await chai.request(server)
         .put(`${BASE_API_USERS_PATH}/123`)
         .set('authorization', ADMIN_TOKEN)
-        .send(UsersTestData.updateUserRequest);
+        .send(UsersTestData.updateUserBody);
 
       assert.equal(status, 404);
       assert.equal(message, 'User with id: 123 not found');
     });
 
     it('Should throw an error if the username is already taken', async () => {
-      const { username } = await UsersRepository.insertOne(UsersTestData.updateUserRequest);
+      const { username } = await UsersRepository.insertOne(UsersTestData.updateUserBody);
 
       const { status, body: { error: { message } } } = await chai.request(server)
         .put(`${BASE_API_USERS_PATH}/${userId}`)
         .set('authorization', ADMIN_TOKEN)
-        .send(UsersTestData.updateUserRequest);
+        .send(UsersTestData.updateUserBody);
 
       assert.equal(status, 400);
       assert.equal(message, `Username ${username} already taken`);
@@ -158,12 +158,12 @@ describe('Users controller', () => {
       const { status } = await chai.request(server)
         .put(`${BASE_API_USERS_PATH}/${userId}`)
         .set('authorization', ADMIN_TOKEN)
-        .send(UsersTestData.updateUserRequest);
+        .send(UsersTestData.updateUserBody);
 
       const foundUser = await UsersRepository.findOne({ id: userId });
       const cleanedFoundUser = DataBaseUtils.cleanRecord(foundUser);
       const { secret: hashedSecret, ...cleanedFoundUserWithoutSecret } = cleanedFoundUser;
-      const { secret: providedSecret } = UsersTestData.updateUserRequest;
+      const { secret: providedSecret } = UsersTestData.updateUserBody;
 
       const isSecretValid = await EncryptionService.compare(providedSecret, hashedSecret);
 

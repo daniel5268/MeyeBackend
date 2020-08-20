@@ -4,7 +4,9 @@ const knex = require('knex');
 
 const EncryptionService = require('../../src/services/EncryptionService');
 const { dataBaseConfig } = require('../../src/config');
-const { USERS, PJS, XP_ASSIGNATIONS } = require('../../src/repositories/TableNames');
+const {
+  USERS, PJS, XP_ASSIGNATIONS, SPECIALTIES, SPECIALTY_OWNERSHIPS,
+} = require('../../src/repositories/TableNames');
 const UsersTestData = require('../data/UsersTestData');
 const PjsTestData = require('../data/PjsTestData');
 
@@ -14,11 +16,15 @@ DataBaseTestUtils.cleanDataBase = async () => {
   await db(XP_ASSIGNATIONS).delete();
   await db(PJS).delete();
   await db(USERS).delete();
+  await db(SPECIALTY_OWNERSHIPS).delete();
+  await db(SPECIALTIES).delete();
 
   await Promise.all([
     DataBaseTestUtils.resetId(XP_ASSIGNATIONS),
     DataBaseTestUtils.resetId(PJS),
     DataBaseTestUtils.resetId(USERS),
+    DataBaseTestUtils.resetId(SPECIALTY_OWNERSHIPS),
+    DataBaseTestUtils.resetId(SPECIALTIES),
   ]);
 };
 

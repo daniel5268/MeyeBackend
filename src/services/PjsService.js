@@ -55,3 +55,33 @@ PjsService.update = async (userId, pjId, pjInfo, options = {}) => {
 
   return PjsRepository.updateOne(updatedPjInfo, { id: pjId });
 };
+
+PjsService.getByUser = async (userId, options) => {
+  const section = 'PjsService.getByUser';
+  const { logger = console } = options;
+  logger.info(section, `starts for user with id ${userId}`);
+
+  const user = await UsersRepository.findOne({ id: userId });
+
+  if (!user) throw new GetFormattedError(`User with id: ${userId} not found`, 404, 404);
+
+  return PjsRepository.find({ user_id: userId });
+};
+
+PjsService.delete = async (userId, pjId, options = {}) => {
+  const section = 'PjsService.delete';
+  const { logger = console } = options;
+  logger.info(section, `starts for ${JSON.stringify(userId, pjId)}`);
+
+  const user = await UsersRepository.findOne({ id: userId });
+
+  if (!user) throw new GetFormattedError(`User with id: ${userId} not found`, 404, 404);
+
+  const pj = await PjsRepository.findOne({ id: pjId });
+
+  if (!pj) throw new GetFormattedError(`Pj with id: ${pjId} not found`, 404, 404);
+
+  if (pj.user_id !== userId) throw new GetFormattedError('Forbidden', 403, 403);
+
+  return PjsRepository.delete({ id: pjId });
+};
