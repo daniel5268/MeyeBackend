@@ -1,10 +1,11 @@
 const PjsService = module.exports;
 
 const UsersRepository = require('../repositories/UsersRepository');
-const { PJS, XP_ASSIGNATIONS } = require('../repositories/TableNames');
+const { PJS, XP_ASSIGNATIONS, SPECIALTY_OWNERSHIPS } = require('../repositories/TableNames');
 const {
   [PJS]: PjsRepository,
   [XP_ASSIGNATIONS]: XpAssignationsRepository,
+  [SPECIALTY_OWNERSHIPS]: SpecialtyOwnershipsRepository,
 } = require('../repositories/GenericRepository');
 const PjUtils = require('../utils/PjUtils');
 const { GetFormattedError } = require('../utils/ErrorUtils');
@@ -84,4 +85,24 @@ PjsService.delete = async (userId, pjId, options = {}) => {
   if (pj.user_id !== userId) throw new GetFormattedError('Forbidden', 403, 403);
 
   return PjsRepository.delete({ id: pjId });
+};
+
+PjsService.assignSpecialty = async (pjId, specialtyId, options) => {
+  const section = 'PjsService.assignSpecialty';
+  const { logger = console } = options;
+  logger.info(section, `starts for ${JSON.stringify(pjId, specialtyId)}`);
+
+  const pj = await PjsRepository.findOne({ id: pjId });
+
+  if (!pj) throw new GetFormattedError(`Pj with id: ${pjId} not found`, 404, 404);
+
+  const specialty = await PjsRepository.findOne({ id: specialtyId });
+
+  if (!specialty) throw new GetFormattedError(`Specialty with id: ${specialtyId} not found`, 404, 404);
+
+  const specialtyOwnership = await SpecialtyOwnershipsRepository.findOne({ pj_id: pjId, specialty_id: specialtyId });
+
+  if (specialtyOwnership) throw new GetFormattedError('Specialty ownership already exists', 400, 400);
+
+  return SpecialtyOwnershipsRepository.insertOne({ pj_id: pjId, specialty_id: specialtyId });
 };

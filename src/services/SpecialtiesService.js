@@ -10,9 +10,9 @@ SpecialtiesService.create = async (specialtyInfo, options) => {
 
   const { name } = specialtyInfo;
 
-  const existingSpecialty = await SpecialtiesRepository.findOne({ name });
+  const specialty = await SpecialtiesRepository.findOne({ name });
 
-  if (existingSpecialty) throw new GetFormattedError(`Specialty with name: ${name} already exists`, 400, 400);
+  if (specialty) throw new GetFormattedError(`Specialty with name: ${name} already exists`, 400, 400);
 
   return SpecialtiesRepository.insertOne(specialtyInfo);
 };
@@ -49,9 +49,9 @@ SpecialtiesService.update = async (specialtyId, specialtyInfo, options = {}) => 
 
   const { name } = specialtyInfo;
 
-  const existingName = await SpecialtiesRepository.findByNameWithDistinctId(name, specialtyId);
+  const isNameTaken = !!await SpecialtiesRepository.findByNameWithDistinctId(name, specialtyId);
 
-  if (existingName) throw new GetFormattedError(`Name ${name} already taken`, 400, 400);
+  if (isNameTaken) throw new GetFormattedError(`Name ${name} already taken`, 400, 400);
 
   return SpecialtiesRepository.updateOne(specialtyInfo, { id: specialtyId });
 };

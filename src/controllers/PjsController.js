@@ -106,8 +106,24 @@ PjsController.getXpAssignations = (req, res, next) => {
 
   SchemaUtils.validateSchema(GetPjXpAssignationsQuerySchema, query, options);
 
-  return XpAssignationsService.getAll({ ...query, pj_id: pjId }, options)
+  return XpAssignationsService.getAll({ ...query, pj_id: +pjId }, options)
     .then((pageInfo) => res.send(pageInfo))
+    .catch((error) => {
+      logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
+
+      return next(error);
+    });
+};
+
+PjsController.assignSpecialty = (req, res, next) => {
+  const section = 'PjsController.assignSpecialty';
+  const { logger = console, params: { pjId, specialtyId } } = req;
+  logger.info(section, `starts with ${JSON.stringify({ pjId, specialtyId })}`);
+
+  const options = { logger };
+
+  return PjsService.assignSpecialty(+pjId, +specialtyId, options)
+    .then((specialtyOwnership) => res.status(201).send(specialtyOwnership))
     .catch((error) => {
       logger.error(section, `ends with error: ${ErrorUtils.getErrorLog(error)}`);
 

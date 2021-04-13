@@ -49,6 +49,10 @@ PjsTestData.expectedCreatedPJ = {
   storage: false,
 };
 
+PjsTestData.getExpectedCreatedPj = (userId) => ({
+  ...PjsTestData.expectedCreatedPJ, user_id: userId,
+});
+
 PjsTestData.pj = {
   name: 'testName',
   type: 'soko',
@@ -132,6 +136,11 @@ PjsTestData.expectedUpdatedPj = {
   ...PjsTestData.updatePjBody,
 };
 
+PjsTestData.getExpectedUpdatedPj = (userId) => ({
+  ...PjsTestData.expectedUpdatedPj,
+  user_id: userId,
+});
+
 PjsTestData.enoughBasicXpAssignations = [
   { type: 'basic', amount: 100 },
   { type: 'basic', amount: 110 },
@@ -168,6 +177,12 @@ PjsTestData.xpAssignationBody = {
 PjsTestData.expectedCreatedAssignation = {
   ...PjsTestData.xpAssignationBody,
 };
+
+PjsTestData.getExpectedCreatedAssignation = (userId, pjId) => ({
+  ...PjsTestData.expectedCreatedAssignation,
+  user_id: userId,
+  pj_id: pjId,
+});
 
 PjsTestData.assignations = [
   { type: 'divine', amount: 1 },
@@ -227,3 +242,13 @@ PjsTestData.getExpectedAssignationsResponse = (pjId, userId, withQueryParams) =>
 
   return { ...basicResponse, data };
 };
+
+PjsTestData.expectedCreatedSpecialtyOwnership = {
+  value: 0,
+};
+
+PjsTestData.getExpectedCreatedSpecialtyOwnership = (pjId, specialtyId) => ({
+  ...PjsTestData.expectedCreatedSpecialtyOwnership,
+  pj_id: pjId,
+  specialty_id: specialtyId,
+});

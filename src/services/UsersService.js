@@ -84,9 +84,9 @@ UsersService.update = async (userId, userInfo, options = {}) => {
 
   const { username } = userInfo;
 
-  const existingUsername = await UsersRepository.findByUsernameWithDistinctId(username, userId);
+  const isUsernameTaken = !!await UsersRepository.findByUsernameWithDistinctId(username, userId);
 
-  if (existingUsername) throw new GetFormattedError(`Username ${username} already taken`, 400, 400);
+  if (isUsernameTaken) throw new GetFormattedError(`Username ${username} already taken`, 400, 400);
 
   const { secret: previousHashedSecret } = user;
 

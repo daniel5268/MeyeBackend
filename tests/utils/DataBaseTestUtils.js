@@ -9,6 +9,7 @@ const {
 } = require('../../src/repositories/TableNames');
 const UsersTestData = require('../data/UsersTestData');
 const PjsTestData = require('../data/PjsTestData');
+const SpecialtiesTestData = require('../data/SpecialtiesTestData');
 
 const db = knex(dataBaseConfig);
 
@@ -31,11 +32,22 @@ DataBaseTestUtils.cleanDataBase = async () => {
 DataBaseTestUtils.insertInitialTestData = async () => {
   const userToInsert = { ...UsersTestData.user, secret: await EncryptionService.hash(UsersTestData.user.secret) };
 
-  const { id: userId } = await db(USERS).insert(userToInsert).returning('*').then(([inserted]) => inserted);
-  const { id: pjId } = await db(PJS).insert({ ...PjsTestData.pj, user_id: userId })
-    .returning('*').then(([inserted]) => inserted);
+  const { id: userId } = await db(USERS)
+    .insert(userToInsert)
+    .returning('*')
+    .then(([user]) => user);
 
-  return { user_id: userId, pj_id: pjId };
+  const { id: pjId } = await db(PJS)
+    .insert({ ...PjsTestData.pj, user_id: userId })
+    .returning('*')
+    .then(([pj]) => pj);
+
+  const { id: specialtyId } = await db(SPECIALTIES)
+    .insert(SpecialtiesTestData.specialty)
+    .returning('*')
+    .then(([specialty]) => specialty);
+
+  return { user_id: userId, pj_id: pjId, specialty_id: specialtyId };
 };
 
 DataBaseTestUtils.resetId = (tableName) => db.schema.raw(`ALTER SEQUENCE ${tableName}_id_seq RESTART WITH 1`);

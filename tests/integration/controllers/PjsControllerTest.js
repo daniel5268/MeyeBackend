@@ -11,10 +11,11 @@ chai.use(chaiHttp);
 
 const DataBaseUtils = require('../../utils/DataBaseTestUtils');
 const PjUtils = require('../../../src/utils/PjUtils');
-const { PJS, XP_ASSIGNATIONS } = require('../../../src/repositories/TableNames');
+const { PJS, XP_ASSIGNATIONS, SPECIALTY_OWNERSHIPS } = require('../../../src/repositories/TableNames');
 const {
   [PJS]: PjsRepository,
   [XP_ASSIGNATIONS]: XpAssignationsRepository,
+  [SPECIALTY_OWNERSHIPS]: SpecialtyOwnershipsRepository,
 } = require('../../../src/repositories/GenericRepository');
 const JwtService = require('../../../src/services/JwtService');
 const UsersTestData = require('../../data/UsersTestData');
@@ -37,10 +38,11 @@ const MASTER_TOKEN = `bearer ${JwtService
 describe('Pjs controller', () => {
   let userId;
   let pjId;
+  let specialtyId;
 
   beforeEach(async () => {
     await DataBaseUtils.cleanDataBase();
-    ({ user_id: userId, pj_id: pjId } = await DataBaseUtils.insertInitialTestData());
+    ({ user_id: userId, pj_id: pjId, specialty_id: specialtyId } = await DataBaseUtils.insertInitialTestData());
     sandbox.spy(PjUtils, 'getPjValidStates');
   });
 
@@ -69,7 +71,7 @@ describe('Pjs controller', () => {
       const foundPj = await PjsRepository.findOne({ id: createdPjId });
       const cleanedPj = DataBaseUtils.cleanRecord(foundPj);
 
-      assert.deepEqual(cleanedPj, { ...PjsTestData.expectedCreatedPJ, user_id: userId });
+      assert.deepEqual(cleanedPj, PjsTestData.getExpectedCreatedPj(userId));
     });
   });
 
@@ -156,7 +158,7 @@ describe('Pjs controller', () => {
 
       const cleanedPj = DataBaseUtils.cleanRecord(body);
 
-      assert.deepEqual(cleanedPj, { ...PjsTestData.expectedUpdatedPj, user_id: userId });
+      assert.deepEqual(cleanedPj, PjsTestData.getExpectedUpdatedPj(userId));
       assert.equal(status, 200);
     });
   });
@@ -254,7 +256,7 @@ describe('Pjs controller', () => {
       assert.equal(status, 201);
       assert.deepEqual(
         cleanedAssignation,
-        { ...PjsTestData.expectedCreatedAssignation, user_id: TOKEN_USER_ID, pj_id: pjId },
+        PjsTestData.getExpectedCreatedAssignation(userId, pjId),
       );
     });
   });
@@ -305,6 +307,54 @@ describe('Pjs controller', () => {
       assert.equal(status, 200);
       assert.deepEqual(
         cleanedResponse, PjsTestData.getExpectedAssignationsResponse(pjId, userId, withQueryParams),
+      );
+    });
+  });
+
+  describe('Assigns specialty to pj', () => {
+    it('Should throw an error if the pj does NOT exist', async () => {
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .put(`${BASE_API_PJS_PATH}/123/specialties/123`)
+        .set('authorization', MASTER_TOKEN);
+
+      assert.equal(status, 404);
+      assert.equal(message, 'Pj with id: 123 not found');
+    });
+
+    it('Should throw an error if the specialty does NOT exist', async () => {
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .put(`${BASE_API_PJS_PATH}/${pjId}/specialties/123`)
+        .set('authorization', MASTER_TOKEN);
+
+      assert.equal(status, 404);
+      assert.equal(message, 'Specialty with id: 123 not found');
+    });
+
+    it('Should throw an error if the specialty ownership already exists', async () => {
+      await SpecialtyOwnershipsRepository.insertOne({ pj_id: pjId, specialty_id: specialtyId });
+
+      const { status, body: { error: { message } } } = await chai.request(server)
+        .put(`${BASE_API_PJS_PATH}/${pjId}/specialties/${specialtyId}`)
+        .set('authorization', MASTER_TOKEN);
+
+      assert.equal(status, 400);
+      assert.equal(message, 'Specialty ownership already exists');
+    });
+
+    it('Should create a specialty ownership', async () => {
+      const { status } = await chai.request(server)
+        .put(`${BASE_API_PJS_PATH}/${pjId}/specialties/${specialtyId}`)
+        .set('authorization', MASTER_TOKEN);
+
+      const foundSpecialtyOwnership = await SpecialtyOwnershipsRepository
+        .findOne({ pj_id: pjId, specialty_id: specialtyId });
+
+      const cleanedFoundSpecialtyOwnership = DataBaseUtils.cleanRecord(foundSpecialtyOwnership);
+
+      assert.equal(status, 201);
+      assert.deepEqual(
+        cleanedFoundSpecialtyOwnership,
+        PjsTestData.getExpectedCreatedSpecialtyOwnership(pjId, specialtyId),
       );
     });
   });

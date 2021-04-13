@@ -7,7 +7,8 @@ exports.up = (knex) => knex.schema.createTable(SPECIALTY_OWNERSHIPS, (table) => 
     .onDelete('CASCADE');
   table.integer('specialty_id').notNullable().references('id').inTable(SPECIALTIES)
     .onDelete('CASCADE');
-  table.integer('value').notNullable();
+  table.integer('value').notNullable().defaultTo(0);
+  table.unique(['pj_id', 'specialty_id']);
   table.timestamps(true, true);
 }).then(() => knex.raw(DataBaseUpdateTrigger(SPECIALTY_OWNERSHIPS)));
 
